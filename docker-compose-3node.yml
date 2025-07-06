@@ -10,18 +10,10 @@ services:
     command: [
       "bin/yugabyted", "start", 
       "--daemon=false", 
-      "--ui=false",
-      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
-      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
+      "--ui=false"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
-    healthcheck:
-      test: ["CMD-SHELL", "bin/ysqlsh -h localhost -p 5433 -U yugabyte -d yugabyte -c 'SELECT 1' || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
     networks:
       - benchbase-network
 
@@ -36,20 +28,12 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1",
-      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
-      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
+      "--join=yugabytedb-node1"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
     depends_on:
       - yugabytedb-node1
-    healthcheck:
-      test: ["CMD-SHELL", "bin/ysqlsh -h localhost -p 5433 -U yugabyte -d yugabyte -c 'SELECT 1' || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
     networks:
       - benchbase-network
 
@@ -64,20 +48,12 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1",
-      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
-      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
+      "--join=yugabytedb-node1"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
     depends_on:
       - yugabytedb-node1
-    healthcheck:
-      test: ["CMD-SHELL", "bin/ysqlsh -h localhost -p 5433 -U yugabyte -d yugabyte -c 'SELECT 1' || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
     networks:
       - benchbase-network
 
@@ -123,16 +99,11 @@ services:
     build: .
     container_name: benchbase
     depends_on:
-      mysql:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      yugabytedb-node1:
-        condition: service_started
-      yugabytedb-node2:
-        condition: service_started
-      yugabytedb-node3:
-        condition: service_started
+      - mysql
+      - postgres
+      - yugabytedb-node1
+      - yugabytedb-node2
+      - yugabytedb-node3
     volumes:
       - ./results:/app/results
       - ./config:/app/config
