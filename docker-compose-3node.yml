@@ -10,7 +10,9 @@ services:
     command: [
       "bin/yugabyted", "start", 
       "--daemon=false", 
-      "--ui=false"
+      "--ui=false",
+      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
+      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
@@ -28,7 +30,9 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1"
+      "--join=yugabytedb-node1:7000",
+      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
+      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
@@ -48,7 +52,9 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1"
+      "--join=yugabytedb-node1:7000",
+      "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
+      "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
     ]
     environment:
       - YSQL_PASSWORD=yugabyte
