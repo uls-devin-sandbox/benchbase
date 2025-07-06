@@ -30,7 +30,7 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1:7000",
+      "--join=yugabytedb-node1",
       "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
       "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
     ]
@@ -52,7 +52,7 @@ services:
       "bin/yugabyted", "start", 
       "--daemon=false", 
       "--ui=false",
-      "--join=yugabytedb-node1:7000",
+      "--join=yugabytedb-node1",
       "--master_flags=leader_failure_max_missed_heartbeat_periods=10",
       "--tserver_flags=leader_failure_max_missed_heartbeat_periods=10"
     ]
