@@ -1,0 +1,189 @@
+services:
+  # YugabyteDB 3-node cluster using traditional yb-master/yb-tserver approach
+  yb-master-1:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-master-1
+    ports:
+      - "7100:7100"
+    command: [
+      "bin/yb-master",
+      "--fs_data_dirs=/mnt/master",
+      "--master_addresses=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-master-1:7100",
+      "--replication_factor=3"
+    ]
+    volumes:
+      - yb-master-1-data:/mnt/master
+    networks:
+      - benchbase-network
+
+  yb-master-2:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-master-2
+    ports:
+      - "7101:7100"
+    command: [
+      "bin/yb-master",
+      "--fs_data_dirs=/mnt/master",
+      "--master_addresses=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-master-2:7100",
+      "--replication_factor=3"
+    ]
+    volumes:
+      - yb-master-2-data:/mnt/master
+    networks:
+      - benchbase-network
+
+  yb-master-3:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-master-3
+    ports:
+      - "7102:7100"
+    command: [
+      "bin/yb-master",
+      "--fs_data_dirs=/mnt/master",
+      "--master_addresses=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-master-3:7100",
+      "--replication_factor=3"
+    ]
+    volumes:
+      - yb-master-3-data:/mnt/master
+    networks:
+      - benchbase-network
+
+  yb-tserver-1:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-tserver-1
+    ports:
+      - "5433:5433"
+      - "9000:9000"
+    command: [
+      "bin/yb-tserver",
+      "--fs_data_dirs=/mnt/tserver",
+      "--tserver_master_addrs=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-tserver-1:9100",
+      "--pgsql_proxy_bind_address=yb-tserver-1:5433",
+      "--enable_ysql=true"
+    ]
+    volumes:
+      - yb-tserver-1-data:/mnt/tserver
+    depends_on:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
+    networks:
+      - benchbase-network
+
+  yb-tserver-2:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-tserver-2
+    ports:
+      - "5434:5433"
+      - "9001:9000"
+    command: [
+      "bin/yb-tserver",
+      "--fs_data_dirs=/mnt/tserver",
+      "--tserver_master_addrs=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-tserver-2:9100",
+      "--pgsql_proxy_bind_address=yb-tserver-2:5433",
+      "--enable_ysql=true"
+    ]
+    volumes:
+      - yb-tserver-2-data:/mnt/tserver
+    depends_on:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
+    networks:
+      - benchbase-network
+
+  yb-tserver-3:
+    image: yugabytedb/yugabyte:latest
+    container_name: yb-tserver-3
+    ports:
+      - "5435:5433"
+      - "9002:9000"
+    command: [
+      "bin/yb-tserver",
+      "--fs_data_dirs=/mnt/tserver",
+      "--tserver_master_addrs=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100",
+      "--rpc_bind_addresses=yb-tserver-3:9100",
+      "--pgsql_proxy_bind_address=yb-tserver-3:5433",
+      "--enable_ysql=true"
+    ]
+    volumes:
+      - yb-tserver-3-data:/mnt/tserver
+    depends_on:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
+    networks:
+      - benchbase-network
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=benchbase
+      - MYSQL_USER=benchbase
+      - MYSQL_PASSWORD=benchbase
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchbase-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5436:5432"
+    environment:
+      - POSTGRES_DB=benchbase
+      - POSTGRES_USER=benchbase
+      - POSTGRES_PASSWORD=benchbase
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U benchbase -d benchbase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchbase-network
+
+  # BenchBase application
+  benchbase:
+    build: .
+    container_name: benchbase
+    depends_on:
+      - mysql
+      - postgres
+      - yb-tserver-1
+      - yb-tserver-2
+      - yb-tserver-3
+    volumes:
+      - ./results:/app/results
+      - ./config:/app/config
+    networks:
+      - benchbase-network
+    tty: true
+    stdin_open: true
+
+networks:
+  benchbase-network:
+    driver: bridge
+
+volumes:
+  yb-master-1-data:
+  yb-master-2-data:
+  yb-master-3-data:
+  yb-tserver-1-data:
+  yb-tserver-2-data:
+  yb-tserver-3-data:
+  results:

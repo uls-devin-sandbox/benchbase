@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <type>YUGABYTEDB</type>
     <driver>com.yugabyte.Driver</driver>
-    <url>jdbc:yugabytedb://yugabytedb-node1:5433,yugabytedb-node2:5433,yugabytedb-node3:5433/yugabyte?user=yugabyte&amp;password=yugabyte&amp;load-balance=true&amp;ApplicationName=tpcc</url>
+    <url>jdbc:yugabytedb://yb-tserver-1:5433,yb-tserver-2:5433,yb-tserver-3:5433/yugabyte?user=yugabyte&amp;password=yugabyte&amp;load-balance=true&amp;ApplicationName=tpcc</url>
     <username>yugabyte</username>
     <password>yugabyte</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
