@@ -2,13 +2,13 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>YUGABYTEDB</type>
-    <driver>com.yugabyte.Driver</driver>
-    <url>jdbc:yugabytedb://yugabytedb:5433/yugabyte?user=yugabyte&amp;password=yugabyte&amp;load-balance=true&amp;ApplicationName=tpcc</url>
-    <username>yugabyte</username>
-    <password>yugabyte</password>
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://mysql:3306/benchbase?useSSL=false&amp;allowPublicKeyRetrieval=true</url>
+    <username>benchbase</username>
+    <password>benchbase</password>
     <reconnectOnConnectionFailure>true</reconnectOnConnectionFailure>
-    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
     <batchsize>128</batchsize>
 
     <!-- Scale factor is the number of warehouses in TPCC -->
@@ -28,28 +28,18 @@
     <transactiontypes>
         <transactiontype>
             <name>NewOrder</name>
-            <!--<preExecutionWait>18000</preExecutionWait>-->
-            <!--<postExecutionWait>12000</postExecutionWait>-->
         </transactiontype>
         <transactiontype>
             <name>Payment</name>
-            <!--<preExecutionWait>3000</preExecutionWait>-->
-            <!--<postExecutionWait>12000</postExecutionWait>-->
         </transactiontype>
         <transactiontype>
             <name>OrderStatus</name>
-            <!--<preExecutionWait>2000</preExecutionWait>-->
-            <!--<postExecutionWait>10000</postExecutionWait>-->
         </transactiontype>
         <transactiontype>
             <name>Delivery</name>
-            <!--<preExecutionWait>2000</preExecutionWait>-->
-            <!--<postExecutionWait>5000</postExecutionWait>-->
         </transactiontype>
         <transactiontype>
             <name>StockLevel</name>
-            <!--<preExecutionWait>2000</preExecutionWait>-->
-            <!--<postExecutionWait>5000</postExecutionWait>-->
         </transactiontype>
     </transactiontypes>
 </parameters>

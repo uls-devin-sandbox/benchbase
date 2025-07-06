@@ -1,0 +1,83 @@
+services:
+  # YugabyteDB cluster
+  yugabytedb:
+    image: yugabytedb/yugabyte:latest
+    container_name: yugabytedb
+    ports:
+      - "5433:5433"
+      - "7000:7000"
+      - "9000:9000"
+    command: ["bin/yugabyted", "start", "--daemon=false", "--ui=false"]
+    environment:
+      - YSQL_PASSWORD=yugabyte
+    healthcheck:
+      test: ["CMD-SHELL", "bin/ysqlsh -h localhost -p 5433 -U yugabyte -d yugabyte -c 'SELECT 1' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - benchbase-network
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=benchbase
+      - MYSQL_USER=benchbase
+      - MYSQL_PASSWORD=benchbase
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchbase-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=benchbase
+      - POSTGRES_USER=benchbase
+      - POSTGRES_PASSWORD=benchbase
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U benchbase -d benchbase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchbase-network
+
+  # BenchBase application
+  benchbase:
+    build: .
+    container_name: benchbase
+    depends_on:
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      yugabytedb:
+        condition: service_started
+    volumes:
+      - ./results:/app/results
+      - ./config:/app/config
+    networks:
+      - benchbase-network
+    tty: true
+    stdin_open: true
+
+networks:
+  benchbase-network:
+    driver: bridge
+
+volumes:
+  results:
