@@ -21,7 +21,7 @@ public class ChatService {
      * ユーザーの入力に対してボットの返信を生成し、DBに保存する
      */
     public ChatMessage processMessage(String userInput) {
-        String botResponse = "Hello, " + userInput;
+        String botResponse = "こんにちは, " + userInput;
         ChatMessage chatMessage = new ChatMessage(userInput, botResponse);
         return chatMessageRepository.save(chatMessage);
     }
